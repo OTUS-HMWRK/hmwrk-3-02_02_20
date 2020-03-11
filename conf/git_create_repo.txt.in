@@ -1,0 +1,4 @@
+#!/bin/bash
+curl -i -H "Authorization: token $ENV{GIT_PERS_TOKEN_${GIT_USER}}" -d '{ "name": "${DESCRIPTION}" }' https://api.github.com/user/repos
+git remote add origin https://github.com/${GIT_USER}/${DESCRIPTION}.git
+git push -u origin master

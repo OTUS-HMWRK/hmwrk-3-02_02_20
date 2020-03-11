@@ -1,0 +1,91 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cmakeVS2019_32or64",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-G", "Visual Studio 16 2019",
+                    "-A", "Win32", "-DVCPKG_TARGET_TRIPLET=x86-windows",
+                        //"-T", "v141", 
+                    //"-A", "x64", "-DVCPKG_TARGET_TRIPLET=x64-windows",                
+                        //"-T", "v141",
+                ".."
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$go"
+        },
+
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".",
+                "--config",
+                "Debug",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$go"
+        },
+
+        {
+            "label": "HelloWorld_CLI",
+            "type": "shell",
+            "command": "type",
+            "args": [
+                "ip_filter.tsv",
+                "|",
+                ".\\build\\app\\Debug\\HelloWorld_CLI.exe"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+
+        {
+            "label": "run_test",
+            "type": "shell",
+            "command": "${workspaceFolder}/build/tests/boost/Debug/test_version.exe",
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "git_clean",
+            "type": "shell",
+            "command": "git clean -dfx",
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "git_clean_test",
+            "type": "shell",
+            "command": "git clean -dfx -n -i",
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        }
+    ]
+}
