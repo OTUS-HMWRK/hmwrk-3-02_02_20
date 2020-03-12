@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12...3.16)
 
 set(
     MY_PROJECT_NAME
-        HelloWorld   
+        IPfilter   
 )
 set(
     DESCRIPTION

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12...3.16)
 
 set(
     MY_PROJECT_NAME
-        HelloWorld_CLI    
+        IPfilter_CLI    
 )
 
 project( ${MY_PROJECT_NAME}
@@ -28,7 +28,7 @@ add_executable(${MY_PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 set_target_properties(
     ${MY_PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
 
@@ -36,20 +36,20 @@ target_include_directories(${MY_PROJECT_NAME}
     PRIVATE ${PROJECT_SOURCE_DIR}/../include/version
 )
 
-target_link_libraries(HelloWorld_CLI PRIVATE
+target_link_libraries(${MY_PROJECT_NAME} PRIVATE
     version
 )
 
 
 message("CMAKE_PROJECT_NAME = ${CMAKE_PROJECT_NAME}")
 if (MSVC)
-    target_compile_options(HelloWorld_CLI PRIVATE
+    target_compile_options(${MY_PROJECT_NAME} PRIVATE
         /W4
     )
 else ()
-    target_compile_options(HelloWorld_CLI PRIVATE
+    target_compile_options(${MY_PROJECT_NAME} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS HelloWorld_CLI RUNTIME DESTINATION bin)
+install(TARGETS ${MY_PROJECT_NAME} RUNTIME DESTINATION bin)

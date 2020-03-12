@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <charconv>
 
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
@@ -30,27 +31,71 @@ std::vector<std::string> split(const std::string &str, char d)
     return r;
 }
 
-bool cmp_rcrsv(
-    std::vector<std::string>::const_iterator &a, 
-    std::vector<std::string>::const_iterator &b
-) 
-{   
-       
-    if (a != std::vector<std::string>::end()) {
-        if (*a == *b) {
-            return cmp_rcrsv(++a, ++b);
-        } else
-            return a < b;
-    } else
+class ip_comparator
+{
+    // std::vector<std::string>::iterator &a_end;
+    // std::vector<std::string>::iterator &b_end;
+    
+    
+    bool ip_cmp_rcrsv(
+        std::vector<std::string>::const_iterator a, 
+        std::vector<std::string>::const_iterator b,
+        std::vector<std::string>::const_iterator a_end, 
+        std::vector<std::string>::const_iterator b_end        
+    ) 
     {
-        return false;
+        bool ret = false;           
+        if ((a != a_end) && (b != b_end)) {
+            int a_int{};
+            int b_int{};
+            if(auto [p, ec] = std::from_chars(a->c_str(), a->c_str() + a->size(), a_int); ec == std::errc()){}
+                //std::cout << a_int << " - a" << std::endl;
+            if(auto [p, ec] = std::from_chars(b->c_str(), b->c_str() + b->size(), b_int); ec == std::errc()){}
+                //std::cout << b_int << " - b" << std::endl;
+            if (
+                a_int == b_int
+                //*a == *b
+            
+            ) {;
+                ret = ip_cmp_rcrsv(++a, ++b, a_end, b_end);
+            } else
+                //ret = !std::lexicographical_compare(a->begin(), a->end(), b->begin(), b->end());
+                ret = (
+                    a_int > b_int
+                    //*a < *b
+                
+                );
+        }
+        return ret;       
     }
-    
-    
-    
+public:
+    bool operator() (
+        std::vector<std::string> &a, 
+        std::vector<std::string> &b
+    )
+    {
+        return ip_cmp_rcrsv(a.begin(), b.begin(), a.end(), b.end());
+    }   
+};
+
+void print_ip_pool(std::vector<std::vector<std::string>> &pool)
+{
+            for(std::vector<std::vector<std::string> >::const_iterator ip = pool.cbegin(); ip != pool.cend(); ++ip)
+        {
+            for(std::vector<std::string>::const_iterator ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part)
+            {
+                if (ip_part != ip->cbegin())
+                {
+                    std::cout << ".";
+
+                }
+                std::cout << *ip_part;
+            }
+            std::cout << std::endl;
+        }
 }
 
-int main(int argc, char const *argv[])
+int main(int, char const **)
 {
     try
     {
@@ -64,27 +109,14 @@ int main(int argc, char const *argv[])
 
         // TODO reverse lexicographically sort
         
-
+        ip_comparator comparator;
         std::sort(
             ip_pool.begin(),
             ip_pool.end(),
-            cmp_rcrsv
+            comparator
         );
 
-
-        for(std::vector<std::vector<std::string> >::const_iterator ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip)
-        {
-            for(std::vector<std::string>::const_iterator ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part)
-            {
-                if (ip_part != ip->cbegin())
-                {
-                    std::cout << ".";
-
-                }
-                std::cout << *ip_part;
-            }
-            std::cout << std::endl;
-        }
+        print_ip_pool(ip_pool);
 
         // 222.173.235.246
         // 222.130.177.64
@@ -96,6 +128,20 @@ int main(int argc, char const *argv[])
 
         // TODO filter by first byte and output
         // ip = filter(1)
+
+        std::vector<std::vector<std::string>> ip_pool_1;
+        std::transform(
+            ip_pool.begin(), 
+            ip_pool.end(), 
+            ip_pool_1.begin(), 
+            [](const std::vector<std::string> i)->std::string
+            {
+                if ("1" == i[0]) return i[0];
+            }
+        );
+
+        print_ip_pool(ip_pool);
+
 
         // 1.231.69.33
         // 1.87.203.225
