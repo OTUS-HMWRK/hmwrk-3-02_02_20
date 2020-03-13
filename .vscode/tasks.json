@@ -61,6 +61,23 @@
         },
 
         {
+            "label": "run md5 IPfilter_CLI",
+            "type": "shell",
+            "command": "type",
+            "args": [
+                "ip_filter.tsv",
+                "|",
+                ".\\build\\app\\Debug\\IPfilter_CLI.exe",
+                "|",
+                "md5sum"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+
+        {
             "label": "run_test",
             "type": "shell",
             "command": "${workspaceFolder}/build/tests/boost/Debug/test_version.exe",
