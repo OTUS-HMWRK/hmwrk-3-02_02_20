@@ -68,8 +68,8 @@
                 "ip_filter.tsv",
                 "|",
                 ".\\build\\app\\Debug\\IPfilter_CLI.exe",
-                "|",
-                "md5sum"
+                ">",
+                "ip_filter_res.tsv"
             ],
             "group": "test",
             "presentation": {

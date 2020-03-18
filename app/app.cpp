@@ -5,46 +5,44 @@
 #include <vector>
 #include <algorithm>
 #include <charconv>
+#include <sstream>
 
 namespace IP {
 
 class IPv4 {
 public:
-    uint32_t IP{};
-    uint8_t 
-        *p1 = (uint8_t *)&IP, 
-        *p2 = p1 + 1, 
-        *p3 = p1 + 2, 
-        *p4 = p1 + 3;
-    uint8_t * aIP = p1;
-    std::string s{};
+    uint32_t intIP{};
+    std::string strIP{};
 
-    IPv4(const uint32_t ip = 0) : IP(ip) {}
+    IPv4(const uint32_t ip = 0) : intIP(ip) {}
 
     IPv4(const uint8_t p1, const uint8_t p2, const uint8_t p3, const uint8_t p4) {
-        aIP[0] = p1;
-        aIP[1] = p2;
-        aIP[2] = p3;
-        aIP[3] = p4;    
+        setP1(p1);
+        setP2(p2);
+        setP2(p3);
+        setP3(p4);  
     }
-    IPv4(const IPv4 &ip) : IP{ip.IP}, s{ip.s} {}//, p1(), p2(), p3(), p4(), aIP() { /*std::cout << "copy! IPstr: "<< ip.s << std::endl;*/}
+    IPv4(const IPv4 &ip) : intIP{ip.intIP}, strIP{ip.strIP} {}//, p1(), p2(), p3(), p4(), aIP() { /*std::cout << "copy! IPstr: "<< ip.s << std::endl;*/}
     IPv4(const std::string &str) {
         try {
             //std::cout << "string! str: " << str << std::endl;
-            auto point = str.c_str();                            
+            auto point = str.c_str();
+
             //std::cout << "size: " << str.size() << std::endl;
             if (auto strSize = str.size(); strSize > 6 && strSize < 16 ) {
+                uint8_t valP;
                 for (auto i = 0; i < 4; i++) {                
-                    if(auto [p, ec] = std::from_chars(point, str.c_str() + strSize, aIP[i] ); ec == std::errc()){
+                    if(auto [p, ec] = std::from_chars(point, str.c_str() + strSize, valP ); ec == std::errc() && valP >= 0 && valP < 256){                    
+                        setP(valP, static_cast<uint8_t>(i));
                         point = ++p;
                         //std::cout << "p: " << (int)p << ", value: " << (int)aIP[i] << std::endl;
                     } else {
                         throw std::invalid_argument(__FUNCSIG__);   
                     }                
                 }
-                s = str;
+                strIP = str;
                 //std::cout << getStr() << str << std::endl;
-            } else {s = "pizdec";}
+            } else {strIP = "pizdec";}
         } 
         catch(const std::invalid_argument &e) {
             std::cout << "!!! invalid_argument exception in function: \""
@@ -56,17 +54,41 @@ public:
         }
     }
     ~IPv4() {}
-    bool operator<(IPv4& o) {
-        return IP > o.IP;
-    }
-    const std::string& getStr() {
-        return s;
+
+    friend bool operator > (IP::IPv4 lhs, IP::IPv4 rhs);
+    friend bool operator < (IP::IPv4 lhs, IP::IPv4 rhs);
+
+    const std::string getStr() {        
+        std::ostringstream oss;
+        oss << (int)*getpP1();
+        oss << ".";
+        oss << (int)*getpP2();
+        oss << ".";
+        oss << (int)*getpP3();
+        oss << ".";
+        oss << (int)*getpP4();
+        std::string _strIP = oss.str();
+        return _strIP;
     }
     const int getUInt() {
-        return IP;
+        return intIP;
     }
+
+    const uint8_t * const getpP1() const {return 3 + (uint8_t *)&this->intIP;}
+    const uint8_t * const getpP2() const {return 2 + (uint8_t *)&this->intIP;}
+    const uint8_t * const getpP3() const {return 1 + (uint8_t *)&this->intIP;}
+    const uint8_t * const getpP4() const {return 0 + (uint8_t *)&this->intIP;}
+    const uint8_t * const getpP(const uint8_t &n = 0) const { if (n < 4) return n + (uint8_t *)&this->intIP;}
+    void setP1(const uint8_t &p) { *(3 + (uint8_t *)&this->intIP) = p;}
+    void setP2(const uint8_t &p) { *(2+ (uint8_t *)&this->intIP) = p;}
+    void setP3(const uint8_t &p) { *(1 + (uint8_t *)&this->intIP) = p;}
+    void setP4(const uint8_t &p) { *(0 + (uint8_t *)&this->intIP) = p;}
+    void setP(const uint8_t &p, const uint8_t &n) { *(3 - n + (uint8_t *)&this->intIP) = p;}
 };
 
+
+bool operator > (IP::IPv4 lhs, IP::IPv4 rhs) { return lhs.intIP > rhs.intIP; }
+bool operator < (IP::IPv4 lhs, IP::IPv4 rhs) { return lhs.intIP < rhs.intIP; }
 }
 
 // ("",  '.') -> [""]
@@ -161,13 +183,12 @@ void print_ip_pool(std::vector<std::vector<std::string>> &pool)
 int main(int, char const **)
 {
     try
-    {
+    {   std::stringstream ss;
         
         
         std::vector<IP::IPv4> IPv4_pool;
         //IPv4_pool.reserve(1000);
         // std::vector<std::string> vs {
-
         // "222.173.235.246",
         // "222.130.177.64",
         // "222.82.198.61",
@@ -176,42 +197,123 @@ int main(int, char const **)
         // "1.1.234.8"
         // };
 
-        std::vector<int> vs {
+        // std::vector<int> vs {
 
-        1,
-        256,
-        66000,
-        311232212,
-        15684684,
-        16661351
-        };
-        // for(std::string line; std::getline(std::cin, line);)
-        // {
-        //     std::vector<std::string> v = split(line, '\t');
-        //     //std::cout<< "IPv4_pool: " << 
-        //     IPv4_pool.emplace_back(v.at(0)).getStr();
-        //     // << std::endl;;
-        //     //std::cout << v.at(0) << std::endl;
-        // }
+        // 0,
+        // 256,
+        // 1,
+        // 2,
+        // 4096,
+        // 16384
+        // };
+        for(std::string line; std::getline(std::cin, line);)
+        {
+            //std::vector<std::string> v = split(line, '\t');
+            //split(line, '\t').at(0);
+            //std::cout<< "IPv4_pool: " << 
+            IPv4_pool.emplace_back(split(line, '\t').at(0)).getStr();
+            // << std::endl;;
+            //std::cout << v.at(0) << std::endl;
+        }
 
 
-        std::for_each(
-            std::begin(vs), 
-            std::end(vs), 
-            [&IPv4_pool](auto &str){ 
-                IPv4_pool.emplace_back(str);
-            }
-        );
-        // std::sort<>(std::begin(IPv4_pool),std::end(IPv4_pool)); 
+        // std::for_each(
+        //     std::begin(vs), 
+        //     std::end(vs), 
+        //     [&IPv4_pool](auto &str){ 
+        //         IPv4_pool.emplace_back(str);
+        //     }
+        // );
+
+        // std::for_each(
+        //     std::begin(IPv4_pool), 
+        //     std::end(IPv4_pool), 
+        //     [](IP::IPv4 &pool){ 
+        //         std::cout                 
+        //             << "String: " << pool.getStr() 
+        //             << "\t\t Int: " <<  static_cast<unsigned>(pool.getUInt()) 
+        //             << "\t pInt: " <<  (int)&pool.IP
+        //             << "\t p1: " << (int)*pool.getpP1() 
+        //             << "\t pp1: " << (int)pool.getpP1()
+        //             << "\t p2: " << (int)*pool.getpP2() 
+        //             << "\t pp2: " << (int)pool.getpP2()
+        //             << "\t p3: " << (int)*pool.getpP3()
+        //             << "\t pp3: " << (int)pool.getpP3()
+        //             << "\t p4: " << (int)*pool.getpP4() 
+        //             << "\t pp4: " << (int)pool.getpP4() 
+        //         << std::endl;
+        //     }
+        // );
+        //std::cout << "IPv4_pool size: " << IPv4_pool.size() << std::endl;
+        //IPv4_pool.reserve(600);
+        std::sort<>(std::begin(IPv4_pool),std::end(IPv4_pool), std::greater<IP::IPv4>());
+        
+        // std::vector<IP::IPv4> IPv4_pool2;
+        // IPv4_pool2.resize(IPv4_pool.size());
+        // std::copy(std::begin(IPv4_pool), std::end(IPv4_pool), std::begin(IPv4_pool2));
         std::for_each(
             std::begin(IPv4_pool), 
             std::end(IPv4_pool), 
-            [](IP::IPv4 &pool){ 
-                std::cout << "String: " << pool.getStr() << "\t Int: " <<  static_cast<unsigned>(pool.getUInt()) << " p1: " << (int)*pool.p1 << " aIP: " << (int)pool.aIP[0] << " p2: " << (int)*pool.p2 << " p3: " << (int)*pool.p3 << " p4: " << (int)*pool.p4 << std::endl;
+            [&ss](IP::IPv4 &pool){ 
+                //std::cout
+                    ss 
+                    << pool.getStr()
+                    << "\n"; 
+               // << std::endl; 
+            }
+        );
+
+        std::for_each(
+            std::begin(IPv4_pool), 
+            std::end(IPv4_pool), 
+            [&ss](IP::IPv4 &pool){
+                if (*pool.getpP1() == 1) 
+                //std::cout
+                    ss 
+                    << pool.getStr()
+                    << "\n"; 
+               // << std::endl; 
+            }
+        );
+
+        std::for_each(
+            std::begin(IPv4_pool), 
+            std::end(IPv4_pool), 
+            [&ss](IP::IPv4 &pool){
+                if (
+                    *pool.getpP1() == 46
+                    &&
+                    *pool.getpP2() == 70
+                ) 
+                //std::cout
+                    ss 
+                    << pool.getStr()
+                    << "\n"; 
+               // << std::endl; 
             }
         );
                
-        std::cout << "IPv4_pool size: " << IPv4_pool.size() << std::endl;
+                std::for_each(
+            std::begin(IPv4_pool), 
+            std::end(IPv4_pool), 
+            [&ss](IP::IPv4 &pool){
+                if (
+                    *pool.getpP1() == 46
+                    ||
+                    *pool.getpP2() == 46
+                    ||
+                    *pool.getpP3() == 46
+                    ||
+                    *pool.getpP4() == 46
+                ) 
+                //std::cout
+                    ss 
+                    << pool.getStr()
+                    << "\n"; 
+               // << std::endl;  
+            }
+        );
+        std::cout << ss.str();
 
 
 
