@@ -6,42 +6,34 @@
 #include <algorithm>
 #include <charconv>
 #include <sstream>
-
 namespace IP {
 
 class IPv4 {
-public:
     uint32_t intIP{};
     std::string strIP{};
-
+public:
     IPv4(const uint32_t ip = 0) : intIP(ip) {}
-
     IPv4(const uint8_t p1, const uint8_t p2, const uint8_t p3, const uint8_t p4) {
         setP1(p1);
         setP2(p2);
         setP2(p3);
         setP3(p4);  
     }
-    IPv4(const IPv4 &ip) : intIP{ip.intIP}, strIP{ip.strIP} {}//, p1(), p2(), p3(), p4(), aIP() { /*std::cout << "copy! IPstr: "<< ip.s << std::endl;*/}
+    IPv4(const IPv4 &ip) : intIP{ip.intIP}, strIP{ip.strIP} {}
     IPv4(const std::string &str) {
         try {
-            //std::cout << "string! str: " << str << std::endl;
             auto point = str.c_str();
-
-            //std::cout << "size: " << str.size() << std::endl;
             if (auto strSize = str.size(); strSize > 6 && strSize < 16 ) {
                 uint8_t valP;
                 for (auto i = 0; i < 4; i++) {                
                     if(auto [p, ec] = std::from_chars(point, str.c_str() + strSize, valP ); ec == std::errc() && valP >= 0 && valP < 256){                    
                         setP(valP, static_cast<uint8_t>(i));
                         point = ++p;
-                        //std::cout << "p: " << (int)p << ", value: " << (int)aIP[i] << std::endl;
                     } else {
                         throw std::invalid_argument(__FUNCSIG__);   
                     }                
                 }
                 strIP = str;
-                //std::cout << getStr() << str << std::endl;
             } else {strIP = "pizdec";}
         } 
         catch(const std::invalid_argument &e) {
@@ -105,23 +97,19 @@ std::vector<std::string> split(const std::string &str, char d)
     std::string::size_type stop = str.find_first_of(d);
     while(stop != std::string::npos)
     {
-        r.push_back(str.substr(start, stop - start));
+        r.emplace_back(str.substr(start, stop - start));
 
         start = stop + 1;
         stop = str.find_first_of(d, start);
     }
 
-    r.push_back(str.substr(start));
+    r.emplace_back(str.substr(start));
 
     return r;
 }
 
 class ip_comparator
-{
-    // std::vector<std::string>::iterator &a_end;
-    // std::vector<std::string>::iterator &b_end;
-    
-    
+{    
     bool ip_cmp_rcrsv(
         std::vector<std::string>::const_iterator a, 
         std::vector<std::string>::const_iterator b,
@@ -134,21 +122,14 @@ class ip_comparator
             int a_int{};
             int b_int{};
             if(auto [p, ec] = std::from_chars(a->c_str(), a->c_str() + a->size(), a_int); ec == std::errc()){}
-                //std::cout << a_int << " - a" << std::endl;
             if(auto [p, ec] = std::from_chars(b->c_str(), b->c_str() + b->size(), b_int); ec == std::errc()){}
-                //std::cout << b_int << " - b" << std::endl;
             if (
-                a_int == b_int
-                //*a == *b
-            
+                a_int == b_int            
             ) {;
                 ret = ip_cmp_rcrsv(++a, ++b, a_end, b_end);
             } else
-                //ret = !std::lexicographical_compare(a->begin(), a->end(), b->begin(), b->end());
                 ret = (
-                    a_int > b_int
-                    //*a < *b
-                
+                    a_int > b_int               
                 );
         }
         return ret;       
@@ -165,55 +146,23 @@ public:
 
 void print_ip_pool(std::vector<std::vector<std::string>> &pool)
 {
-            for(std::vector<std::vector<std::string> >::const_iterator ip = pool.cbegin(); ip != pool.cend(); ++ip)
-        {
-            for(std::vector<std::string>::const_iterator ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part)
-            {
-                if (ip_part != ip->cbegin())
-                {
-                    std::cout << ".";
-
-                }
-                std::cout << *ip_part;
-            }
-            std::cout << std::endl;
+    for(auto ip = pool.cbegin(); ip != pool.cend(); ++ip) {
+        for(auto ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part) {
+            if (ip_part != ip->cbegin())
+                { std::cout << "."; }
+            std::cout << *ip_part;
         }
+        std::cout << std::endl;
+    }
 }
 
-int main(int, char const **)
-{
-    try
-    {   std::stringstream ss;
-        
-        
+int main(int, char const **) {
+    try {
+        std::stringstream ss;                
         std::vector<IP::IPv4> IPv4_pool;
-        //IPv4_pool.reserve(1000);
-        // std::vector<std::string> vs {
-        // "222.173.235.246",
-        // "222.130.177.64",
-        // "222.82.198.61",
-        // "1.70.44.170",
-        // "1.29.168.152",
-        // "1.1.234.8"
-        // };
 
-        // std::vector<int> vs {
-
-        // 0,
-        // 256,
-        // 1,
-        // 2,
-        // 4096,
-        // 16384
-        // };
-        for(std::string line; std::getline(std::cin, line);)
-        {
-            //std::vector<std::string> v = split(line, '\t');
-            //split(line, '\t').at(0);
-            //std::cout<< "IPv4_pool: " << 
+        for(std::string line; std::getline(std::cin, line); ) {
             IPv4_pool.emplace_back(split(line, '\t').at(0)).getStr();
-            // << std::endl;;
-            //std::cout << v.at(0) << std::endl;
         }
 
 
